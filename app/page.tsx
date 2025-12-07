@@ -1,10 +1,10 @@
 'use client';
- 
+
 import React, { useState, useEffect } from 'react';
 import { ServiceForm } from '@/components/ServiceForm';
 import { ServiceSchedule } from '@/components/ServiceSchedule';
 import { ServiceTracker } from '@/components/ServiceTracker';
-import { Car, Plus, Search as SearchIcon, Home as HomeIcon } from 'lucide-react';
+import { Car, Plus, Search as SearchIcon, Home as HomeIcon, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { saveCustomer, getAllCustomers, deleteCustomer } from '@/lib/db';
@@ -31,10 +31,28 @@ export default function Home() {
   const [scheduleData, setScheduleData] = useState<CustomerRecord | null>(null);
   const [customerRecords, setCustomerRecords] = useState<CustomerRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     loadCustomers();
+    // Load dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
   }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const loadCustomers = async () => {
     try {
@@ -90,48 +108,71 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Mobile-Optimized Navigation Bar */}
-      <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3">
-          <div className="flex items-center justify-between gap-2">
-            {/* Logo Section */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
-                <Car className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
+    <main className={`min-h-screen transition-colors ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-slate-50 to-slate-100'}`}>
+      {/* Clean Icon-Only Navigation */}
+      <nav className={`shadow-md border-b sticky top-0 z-50 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                <Car className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-base sm:text-2xl font-bold text-gray-900">AutoDate</h1>
-                <p className="text-xs text-gray-500 hidden lg:block">Service Manager</p>
-              </div>
+              <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>AutoDate</h1>
             </div>
 
-            {/* Navigation Buttons - Icon only on mobile */}
+            {/* Icon-Only Buttons */}
             <div className="flex items-center gap-2">
-              <Button
+              <button
                 onClick={() => setCurrentView('home')}
-                variant={currentView === 'home' ? 'default' : 'outline'}
-                className="h-9 w-9 sm:w-auto sm:h-10 p-0 sm:px-4"
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                  currentView === 'home'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : darkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <HomeIcon className="w-4 h-4" />
-                <span className="hidden sm:inline sm:ml-2">Home</span>
-              </Button>
-              <Button
+                <HomeIcon className="w-5 h-5" />
+              </button>
+              
+              <button
                 onClick={() => setCurrentView('form')}
-                variant={currentView === 'form' ? 'default' : 'outline'}
-                className="h-9 w-9 sm:w-auto sm:h-10 p-0 sm:px-4"
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                  currentView === 'form'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : darkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline sm:ml-2">New</span>
-              </Button>
-              <Button
+                <Plus className="w-5 h-5" />
+              </button>
+              
+              <button
                 onClick={() => setCurrentView('tracker')}
-                variant={currentView === 'tracker' ? 'default' : 'outline'}
-                className="h-9 w-9 sm:w-auto sm:h-10 p-0 sm:px-4"
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                  currentView === 'tracker'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : darkMode
+                    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
               >
-                <SearchIcon className="w-4 h-4" />
-                <span className="hidden sm:inline sm:ml-2">Track</span>
-              </Button>
+                <SearchIcon className="w-5 h-5" />
+              </button>
+
+              {/* Dark/Light Mode Toggle */}
+              <button
+                onClick={toggleDarkMode}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ml-2 ${
+                  darkMode
+                    ? 'bg-yellow-500 text-gray-900 hover:bg-yellow-400'
+                    : 'bg-gray-800 text-yellow-400 hover:bg-gray-700'
+                }`}
+              >
+                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </div>
@@ -144,40 +185,40 @@ export default function Home() {
             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-2xl mx-auto mb-4 sm:mb-6">
               <Car className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Welcome to AutoDate</h2>
-            <p className="text-base sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
+            <h2 className={`text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Welcome to AutoDate</h2>
+            <p className={`text-base sm:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               Professional vehicle service scheduling and tracking system for managing customer service records
             </p>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto mt-8 sm:mt-12">
-              <div className="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+              <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
                   <Plus className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Add Customer</h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-4">Create new service schedules for customers</p>
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Add Customer</h3>
+                <p className={`text-sm sm:text-base mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Create new service schedules for customers</p>
                 <Button onClick={() => setCurrentView('form')} className="w-full">
                   Get Started
                 </Button>
               </div>
 
-              <div className="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow">
+              <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
                   <SearchIcon className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Track Services</h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-4">Search and manage service completion</p>
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Track Services</h3>
+                <p className={`text-sm sm:text-base mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Search and manage service completion</p>
                 <Button onClick={() => setCurrentView('tracker')} variant="outline" className="w-full">
                   View Tracker
                 </Button>
               </div>
 
-              <div className="bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 hover:shadow-xl transition-shadow sm:col-span-2 lg:col-span-1">
+              <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow sm:col-span-2 lg:col-span-1 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                 <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
                   <Car className="w-6 h-6 text-purple-600" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Total Records</h3>
-                <p className="text-sm sm:text-base text-gray-600 mb-4">Manage all customer records</p>
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Total Records</h3>
+                <p className={`text-sm sm:text-base mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Manage all customer records</p>
                 <div className="text-3xl font-bold text-blue-600">{customerRecords.length}</div>
               </div>
             </div>
@@ -212,12 +253,12 @@ export default function Home() {
         )}
       </div>
 
-      <footer className="text-center py-6 sm:py-8 border-t border-gray-200 mt-8 sm:mt-12">
+      <footer className={`text-center py-6 sm:py-8 border-t mt-8 sm:mt-12 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="space-y-2 sm:space-y-3 px-4">
-          <p className="text-xs sm:text-sm text-gray-500">
+          <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             © 2025 AutoDate Service Manager. All rights reserved.
           </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+          <div className={`flex items-center justify-center gap-2 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
             <span>Made with</span>
             <span className="text-red-500">❤️</span>
             <span>by</span>
