@@ -9,7 +9,6 @@ interface FormData {
   customerName: string;
   vehicleModel: string;
   registrationNumber: string;
-  vehicleNumber: string;
   purchaseDate: string;
 }
 
@@ -22,7 +21,6 @@ export function ServiceForm({ onSubmit }: ServiceFormProps) {
     customerName: '',
     vehicleModel: '',
     registrationNumber: '',
-    vehicleNumber: '',
     purchaseDate: '',
   });
 
@@ -39,7 +37,7 @@ export function ServiceForm({ onSubmit }: ServiceFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+    <form onSubmit={handleSubmit} className="space-y-6 bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200">
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
           <User className="w-4 h-4 text-tata-blue" />
@@ -78,20 +76,6 @@ export function ServiceForm({ onSubmit }: ServiceFormProps) {
           value={formData.registrationNumber}
           onChange={handleChange}
           placeholder="e.g., DL-01-AB-1234"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-          <FileText className="w-4 h-4 text-tata-blue" />
-          Vehicle Number
-        </label>
-        <Input
-          name="vehicleNumber"
-          value={formData.vehicleNumber}
-          onChange={handleChange}
-          placeholder="Chassis/Engine number"
           required
         />
       </div>
