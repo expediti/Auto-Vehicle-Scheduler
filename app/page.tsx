@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ServiceForm } from '@/components/ServiceForm';
 import { ServiceSchedule } from '@/components/ServiceSchedule';
 import { ServiceTracker } from '@/components/ServiceTracker';
-import { Car, Plus, Search as SearchIcon, Home as HomeIcon, Moon, Sun, Download } from 'lucide-react';
+import { Car, Plus, Search as SearchIcon, Home as HomeIcon, Moon, Sun, Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { saveCustomer, getAllCustomers, deleteCustomer } from '@/lib/db';
@@ -32,8 +32,9 @@ export default function Home() {
   const [customerRecords, setCustomerRecords] = useState<CustomerRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [darkMode, setDarkMode] = useState(false);
+  const [showInstallBanner, setShowInstallBanner] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     loadCustomers();
@@ -43,17 +44,37 @@ export default function Home() {
       document.documentElement.classList.add('dark');
     }
 
+    // Check if already installed
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOSInstalled = (window.navigator as any).standalone === true;
+    
+    if (isStandalone || isIOSInstalled) {
+      setIsInstalled(true);
+      setShowInstallBanner(false);
+    }
+
+    // Check if user previously dismissed
+    const dismissed = localStorage.getItem('installBannerDismissed');
+    if (dismissed === 'true' && !isStandalone && !isIOSInstalled) {
+      setShowInstallBanner(false);
+    }
+
+    // Capture the install prompt event
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowInstallButton(true);
+      setShowInstallBanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowInstallButton(false);
-    }
+    // Listen for successful install
+    window.addEventListener('appinstalled', () => {
+      setIsInstalled(true);
+      setShowInstallBanner(false);
+      localStorage.removeItem('installBannerDismissed');
+    });
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -61,19 +82,30 @@ export default function Home() {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      alert('To install:\n\n1. Tap Share button\n2. Select "Add to Home Screen"\n3. Tap "Add"');
-      return;
+    if (deferredPrompt) {
+      // Chrome/Edge Android
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        setShowInstallBanner(false);
+        setIsInstalled(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // iOS or when prompt not available
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        alert('To install on iOS:\n\n1. Tap the Share button (square with arrow)\n2. Scroll and tap "Add to Home Screen"\n3. Tap "Add"\n\nThe app will appear on your home screen!');
+      } else {
+        alert('To install:\n\n1. Tap the menu (⋮) in your browser\n2. Select "Add to Home screen" or "Install app"\n3. Tap "Install"\n\nThe app will work offline!');
+      }
     }
+  };
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      setShowInstallButton(false);
-    }
-    
-    setDeferredPrompt(null);
+  const dismissInstallBanner = () => {
+    setShowInstallBanner(false);
+    localStorage.setItem('installBannerDismissed', 'true');
   };
 
   const toggleDarkMode = () => {
@@ -142,32 +174,41 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen transition-colors ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-slate-50 to-slate-100'}`}>
-      {showInstallButton && (
-        <div className={`sticky top-0 z-50 ${darkMode ? 'bg-blue-900' : 'bg-blue-600'} text-white px-4 py-3 shadow-lg`}>
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Download className="w-5 h-5" />
-              <span className="text-sm font-semibold">Install AutoDate App</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleInstallClick}
-                className="bg-white text-blue-600 px-4 py-1.5 rounded-lg font-semibold text-sm hover:bg-blue-50 transition"
-              >
-                Install
-              </button>
-              <button
-                onClick={() => setShowInstallButton(false)}
-                className="text-white hover:text-blue-200 text-sm px-2"
-              >
-                ✕
-              </button>
+      {/* Install App Banner - Always visible unless dismissed or installed */}
+      {showInstallBanner && !isInstalled && (
+        <div className={`${darkMode ? 'bg-gradient-to-r from-blue-900 to-blue-800' : 'bg-gradient-to-r from-blue-600 to-blue-700'} text-white sticky top-0 z-50 shadow-lg animate-slide-down`}>
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center">
+                  <Download className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-sm sm:text-base">Install AutoDate App</p>
+                  <p className="text-xs text-blue-100">Works offline • No storage needed • Fast access</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleInstallClick}
+                  className="bg-white text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-50 transition-all shadow-md whitespace-nowrap"
+                >
+                  Install Now
+                </button>
+                <button
+                  onClick={dismissInstallBanner}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-all"
+                  aria-label="Dismiss"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      <nav className={`shadow-md border-b sticky ${showInstallButton ? 'top-14' : 'top-0'} z-40 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <nav className={`shadow-md border-b sticky ${showInstallBanner && !isInstalled ? 'top-[60px]' : 'top-0'} z-40 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -242,13 +283,6 @@ export default function Home() {
             <p className={`text-base sm:text-xl mb-6 sm:mb-8 max-w-2xl mx-auto px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               Professional vehicle service scheduling and tracking system for managing customer service records
             </p>
-            
-            {showInstallButton && (
-              <Button onClick={handleInstallClick} className="mb-8 bg-green-600 hover:bg-green-700">
-                <Download className="w-5 h-5 mr-2" />
-                Install App for Offline Use
-              </Button>
-            )}
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto mt-8 sm:mt-12">
               <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
