@@ -110,32 +110,33 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
         title: '1st Service', 
         period: '7 months after purchase',
         date: serviceDates.firstService,
-        color: [59, 130, 246], // Blue
+        color: [59, 130, 246] as [number, number, number], // Blue
         status: data.serviceStatus?.first
       },
       { 
         title: '2nd Service', 
         period: '15 months after purchase',
         date: serviceDates.secondService,
-        color: [99, 102, 241], // Indigo
+        color: [99, 102, 241] as [number, number, number], // Indigo
         status: data.serviceStatus?.second
       },
       { 
         title: '3rd Service', 
         period: '23 months after purchase',
         date: serviceDates.thirdService,
-        color: [168, 85, 247], // Purple
+        color: [168, 85, 247] as [number, number, number], // Purple
         status: data.serviceStatus?.third
       },
     ];
     
-    services.forEach((service, index) => {
+    services.forEach((service) => {
       // Card background
       pdf.setFillColor(248, 250, 252);
       pdf.roundedRect(20, y, pageWidth - 40, 28, 3, 3, 'F');
       
       // Left color accent
-      pdf.setFillColor(...service.color);
+      const [r, g, b] = service.color;
+      pdf.setFillColor(r, g, b);
       pdf.rect(20, y, 4, 28, 'F');
       
       // Service status indicator
@@ -170,7 +171,7 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
       // Service date
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(...service.color);
+      pdf.setTextColor(r, g, b);
       pdf.text(formatDate(service.date), 30, y + 23);
       
       y += 33;
