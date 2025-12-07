@@ -47,7 +47,7 @@ export default function Home() {
 
   const handleFormSubmit = async (data: FormData) => {
     try {
-      const newCustomer = {
+      const newCustomer: CustomerRecord = {
         ...data,
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
