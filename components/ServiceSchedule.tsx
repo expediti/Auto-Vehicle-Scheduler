@@ -10,7 +10,6 @@ interface ScheduleData {
   customerName: string;
   vehicleModel: string;
   registrationNumber: string;
-  vehicleNumber: string;
   purchaseDate: string;
   serviceStatus?: {
     first: boolean;
@@ -35,11 +34,11 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
     const pageHeight = pdf.internal.pageSize.getHeight();
     
     // Modern gradient header
-    pdf.setFillColor(37, 99, 235); // Blue-600
+    pdf.setFillColor(37, 99, 235);
     pdf.rect(0, 0, pageWidth, 50, 'F');
     
     // Add subtle pattern overlay
-    pdf.setFillColor(59, 130, 246); // Blue-500
+    pdf.setFillColor(59, 130, 246);
     for (let i = 0; i < 10; i++) {
       pdf.circle(pageWidth - 20 + i * 5, 10 + i * 3, 15, 'F');
     }
@@ -73,12 +72,11 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
     pdf.setFontSize(11);
     pdf.setFont('helvetica', 'normal');
     
-    // Customer details in a clean table format
+    // Customer details
     const details = [
       ['Customer Name', data.customerName],
       ['Vehicle Model', data.vehicleModel],
       ['Registration No.', data.registrationNumber],
-      ['Vehicle Number', data.vehicleNumber],
       ['Purchase Date', formatDate(purchaseDate)],
     ];
     
@@ -104,51 +102,48 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
     
     y += 12;
     
-    // Service cards with modern design
+    // Service cards
     const services = [
       { 
         title: '1st Service', 
         period: '7 months after purchase',
         date: serviceDates.firstService,
-        color: [59, 130, 246] as [number, number, number], // Blue
+        color: [59, 130, 246] as [number, number, number],
         status: data.serviceStatus?.first
       },
       { 
         title: '2nd Service', 
         period: '15 months after purchase',
         date: serviceDates.secondService,
-        color: [99, 102, 241] as [number, number, number], // Indigo
+        color: [99, 102, 241] as [number, number, number],
         status: data.serviceStatus?.second
       },
       { 
         title: '3rd Service', 
         period: '23 months after purchase',
         date: serviceDates.thirdService,
-        color: [168, 85, 247] as [number, number, number], // Purple
+        color: [168, 85, 247] as [number, number, number],
         status: data.serviceStatus?.third
       },
     ];
     
     services.forEach((service) => {
-      // Card background
       pdf.setFillColor(248, 250, 252);
       pdf.roundedRect(20, y, pageWidth - 40, 28, 3, 3, 'F');
       
-      // Left color accent
       const [r, g, b] = service.color;
       pdf.setFillColor(r, g, b);
       pdf.rect(20, y, 4, 28, 'F');
       
-      // Service status indicator
       if (service.status !== undefined) {
         if (service.status) {
-          pdf.setFillColor(34, 197, 94); // Green
+          pdf.setFillColor(34, 197, 94);
           pdf.circle(pageWidth - 30, y + 14, 4, 'F');
           pdf.setTextColor(34, 197, 94);
           pdf.setFontSize(8);
           pdf.text('✓', pageWidth - 31, y + 15);
         } else {
-          pdf.setFillColor(239, 68, 68); // Red
+          pdf.setFillColor(239, 68, 68);
           pdf.circle(pageWidth - 30, y + 14, 4, 'F');
           pdf.setTextColor(239, 68, 68);
           pdf.setFontSize(8);
@@ -156,19 +151,16 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
         }
       }
       
-      // Service title
       pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(13);
       pdf.setFont('helvetica', 'bold');
       pdf.text(service.title, 30, y + 10);
       
-      // Service period
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 100, 100);
       pdf.text(service.period, 30, y + 16);
       
-      // Service date
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(r, g, b);
@@ -177,7 +169,7 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
       y += 33;
     });
     
-    // Footer with modern styling
+    // Footer
     pdf.setDrawColor(229, 231, 235);
     pdf.setLineWidth(0.3);
     pdf.line(20, pageHeight - 25, pageWidth - 20, pageHeight - 25);
@@ -188,7 +180,6 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
     pdf.text('AutoDate Service Manager', pageWidth / 2, pageHeight - 18, { align: 'center' });
     pdf.text('Professional Vehicle Service Scheduling System', pageWidth / 2, pageHeight - 13, { align: 'center' });
     
-    // Save with customer name
     const fileName = `${data.customerName.replace(/\s+/g, '_')}_Service_Schedule.pdf`;
     pdf.save(fileName);
   };
@@ -238,7 +229,7 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
         Back to Home
       </Button>
 
-      <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200">
         <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
@@ -261,15 +252,11 @@ export function ServiceSchedule({ data, onReset, onReload }: ServiceScheduleProp
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vehicle Model</p>
               <p className="text-lg font-semibold text-gray-900">{data.vehicleModel}</p>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Registration Number</p>
-              <p className="text-lg font-semibold text-gray-900">{data.registrationNumber}</p>
-            </div>
           </div>
           <div className="space-y-3">
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vehicle Number</p>
-              <p className="text-lg font-semibold text-gray-900">{data.vehicleNumber}</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Registration Number</p>
+              <p className="text-lg font-semibold text-gray-900">{data.registrationNumber}</p>
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Purchase Date</p>
