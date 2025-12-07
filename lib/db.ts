@@ -3,7 +3,6 @@ interface CustomerRecord {
   customerName: string;
   vehicleModel: string;
   registrationNumber: string;
-  vehicleNumber: string;
   purchaseDate: string;
   createdAt: string;
   serviceStatus: {
@@ -15,7 +14,7 @@ interface CustomerRecord {
 
 const DB_NAME = 'VehicleServiceDB';
 const STORE_NAME = 'customers';
-const DB_VERSION = 2; // Increased version for schema update
+const DB_VERSION = 3; // Increased version
 
 let db: IDBDatabase | null = null;
 
@@ -37,12 +36,10 @@ export async function initDB(): Promise<IDBDatabase> {
     request.onupgradeneeded = (event) => {
       const database = (event.target as IDBOpenDBRequest).result;
       
-      // Delete old store if exists
       if (database.objectStoreNames.contains(STORE_NAME)) {
         database.deleteObjectStore(STORE_NAME);
       }
       
-      // Create new store with updated schema
       const objectStore = database.createObjectStore(STORE_NAME, {
         keyPath: 'id',
         autoIncrement: false,
