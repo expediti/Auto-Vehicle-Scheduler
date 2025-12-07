@@ -13,7 +13,6 @@ interface FormData {
   customerName: string;
   vehicleModel: string;
   registrationNumber: string;
-  vehicleNumber: string;
   purchaseDate: string;
 }
 
@@ -101,38 +100,37 @@ export default function Home() {
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg">
                 <Car className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">AutoDate</h1>
-                <p className="text-xs text-gray-500 hidden md:block">Service Schedule Manager</p>
+              <div>
+                <h1 className="text-base sm:text-2xl font-bold text-gray-900">AutoDate</h1>
+                <p className="text-xs text-gray-500 hidden lg:block">Service Manager</p>
               </div>
-              <h1 className="text-base font-bold text-gray-900 sm:hidden">AutoDate</h1>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* Navigation Buttons - Icon only on mobile */}
+            <div className="flex items-center gap-2">
               <Button
                 onClick={() => setCurrentView('home')}
                 variant={currentView === 'home' ? 'default' : 'outline'}
-                className="h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm"
+                className="h-9 w-9 sm:w-auto sm:h-10 p-0 sm:px-4"
               >
-                <HomeIcon className="w-4 h-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">Home</span>
+                <HomeIcon className="w-4 h-4" />
+                <span className="hidden sm:inline sm:ml-2">Home</span>
               </Button>
               <Button
                 onClick={() => setCurrentView('form')}
                 variant={currentView === 'form' ? 'default' : 'outline'}
-                className="h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm"
+                className="h-9 w-9 sm:w-auto sm:h-10 p-0 sm:px-4"
               >
-                <Plus className="w-4 h-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">New</span>
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline sm:ml-2">New</span>
               </Button>
               <Button
                 onClick={() => setCurrentView('tracker')}
                 variant={currentView === 'tracker' ? 'default' : 'outline'}
-                className="h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm"
+                className="h-9 w-9 sm:w-auto sm:h-10 p-0 sm:px-4"
               >
-                <SearchIcon className="w-4 h-4 sm:mr-1.5" />
-                <span className="hidden sm:inline">Track</span>
+                <SearchIcon className="w-4 h-4" />
+                <span className="hidden sm:inline sm:ml-2">Track</span>
               </Button>
             </div>
           </div>
