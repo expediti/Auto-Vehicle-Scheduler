@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ServiceForm } from '@/components/ServiceForm';
 import { ServiceSchedule } from '@/components/ServiceSchedule';
 import { ServiceTracker } from '@/components/ServiceTracker';
-import { Car, Plus, Search, Home } from 'lucide-react';
+import { Car, Plus, Search, Home as HomeIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { saveCustomer, getAllCustomers, deleteCustomer } from '@/lib/db';
@@ -112,7 +112,7 @@ export default function Home() {
                 variant={currentView === 'home' ? 'default' : 'outline'}
                 className="flex items-center gap-2"
               >
-                <Home className="w-4 h-4" />
+                <HomeIcon className="w-4 h-4" />
                 Home
               </Button>
               <Button
