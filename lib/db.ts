@@ -6,11 +6,16 @@ interface CustomerRecord {
   vehicleNumber: string;
   purchaseDate: string;
   createdAt: string;
+  serviceStatus: {
+    first: boolean;
+    second: boolean;
+    third: boolean;
+  };
 }
 
 const DB_NAME = 'VehicleServiceDB';
 const STORE_NAME = 'customers';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Increased version for schema update
 
 let db: IDBDatabase | null = null;
 
@@ -31,14 +36,19 @@ export async function initDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const database = (event.target as IDBOpenDBRequest).result;
-      if (!database.objectStoreNames.contains(STORE_NAME)) {
-        const objectStore = database.createObjectStore(STORE_NAME, {
-          keyPath: 'id',
-          autoIncrement: false,
-        });
-        objectStore.createIndex('registrationNumber', 'registrationNumber', { unique: true });
-        objectStore.createIndex('customerName', 'customerName', { unique: false });
+      
+      // Delete old store if exists
+      if (database.objectStoreNames.contains(STORE_NAME)) {
+        database.deleteObjectStore(STORE_NAME);
       }
+      
+      // Create new store with updated schema
+      const objectStore = database.createObjectStore(STORE_NAME, {
+        keyPath: 'id',
+        autoIncrement: false,
+      });
+      objectStore.createIndex('registrationNumber', 'registrationNumber', { unique: false });
+      objectStore.createIndex('customerName', 'customerName', { unique: false });
     };
   });
 }
@@ -53,6 +63,11 @@ export async function saveCustomer(customer: CustomerRecord): Promise<void> {
       ...customer,
       id: customer.id || crypto.randomUUID(),
       createdAt: customer.createdAt || new Date().toISOString(),
+      serviceStatus: customer.serviceStatus || {
+        first: false,
+        second: false,
+        third: false,
+      },
     };
 
     const request = store.put(customerData);
