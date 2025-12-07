@@ -43,7 +43,6 @@ export default function Home() {
       document.documentElement.classList.add('dark');
     }
 
-    // PWA Install Prompt
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -52,7 +51,6 @@ export default function Home() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setShowInstallButton(false);
     }
@@ -64,7 +62,6 @@ export default function Home() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      // Fallback for iOS or when prompt is not available
       alert('To install:\n\n1. Tap Share button\n2. Select "Add to Home Screen"\n3. Tap "Add"');
       return;
     }
@@ -145,7 +142,6 @@ export default function Home() {
 
   return (
     <main className={`min-h-screen transition-colors ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-br from-slate-50 to-slate-100'}`}>
-      {/* Install Button Banner */}
       {showInstallButton && (
         <div className={`sticky top-0 z-50 ${darkMode ? 'bg-blue-900' : 'bg-blue-600'} text-white px-4 py-3 shadow-lg`}>
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -171,8 +167,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Navigation */}
-      <nav className={`shadow-md border-b sticky top-0 z-40 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <nav className={`shadow-md border-b sticky ${showInstallButton ? 'top-14' : 'top-0'} z-40 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -237,7 +232,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Rest of your content stays the same... */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {currentView === 'home' && (
           <div className="text-center py-12 sm:py-20">
@@ -249,7 +243,6 @@ export default function Home() {
               Professional vehicle service scheduling and tracking system for managing customer service records
             </p>
             
-            {/* Show install button on home page too */}
             {showInstallButton && (
               <Button onClick={handleInstallClick} className="mb-8 bg-green-600 hover:bg-green-700">
                 <Download className="w-5 h-5 mr-2" />
@@ -258,13 +251,91 @@ export default function Home() {
             )}
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto mt-8 sm:mt-12">
-              {/* Rest of home content... */}
+              <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                  <Plus className="w-6 h-6 text-blue-600" />
+                </div>
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Add Customer</h3>
+                <p className={`text-sm sm:text-base mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Create new service schedules for customers</p>
+                <Button onClick={() => setCurrentView('form')} className="w-full">
+                  Get Started
+                </Button>
+              </div>
+
+              <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                  <SearchIcon className="w-6 h-6 text-green-600" />
+                </div>
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Track Services</h3>
+                <p className={`text-sm sm:text-base mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Search and manage service completion</p>
+                <Button onClick={() => setCurrentView('tracker')} variant="outline" className="w-full">
+                  View Tracker
+                </Button>
+              </div>
+
+              <div className={`p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg border hover:shadow-xl transition-shadow sm:col-span-2 lg:col-span-1 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4 mx-auto">
+                  <Car className="w-6 h-6 text-purple-600" />
+                </div>
+                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>Total Records</h3>
+                <p className={`text-sm sm:text-base mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Manage all customer records</p>
+                <div className="text-3xl font-bold text-blue-600">{customerRecords.length}</div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Other views remain the same */}
+        {currentView === 'form' && (
+          <div className="max-w-2xl mx-auto">
+            <ServiceForm onSubmit={handleFormSubmit} />
+          </div>
+        )}
+
+        {currentView === 'schedule' && scheduleData && (
+          <div className="max-w-4xl mx-auto">
+            <ServiceSchedule 
+              data={scheduleData} 
+              onReset={() => setCurrentView('home')}
+              onReload={loadCustomers}
+            />
+          </div>
+        )}
+
+        {currentView === 'tracker' && (
+          <ServiceTracker
+            records={filteredRecords}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onView={handleViewRecord}
+            onDelete={handleDeleteRecord}
+            onReload={loadCustomers}
+          />
+        )}
       </div>
+
+      <footer className={`text-center py-6 sm:py-8 border-t mt-8 sm:mt-12 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className="space-y-2 sm:space-y-3 px-4">
+          <p className={`text-xs sm:text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            © 2025 AutoDate Service Manager. All rights reserved.
+          </p>
+          <div className={`flex items-center justify-center gap-2 text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+            <span>Made with</span>
+            <span className="text-red-500">❤️</span>
+            <span>by</span>
+            <a 
+              href="https://github.com/BroxGit" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-bold hover:underline transition-all"
+            >
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+              BroxGit
+            </a>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
