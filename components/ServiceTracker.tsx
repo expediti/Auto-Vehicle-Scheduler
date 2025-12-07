@@ -12,7 +12,6 @@ interface CustomerRecord {
   customerName: string;
   vehicleModel: string;
   registrationNumber: string;
-  vehicleNumber: string;
   purchaseDate: string;
   createdAt: string;
   serviceStatus: {
